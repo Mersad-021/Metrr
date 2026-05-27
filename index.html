@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0a0a12">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Metr">
+<title>Metr — قیمت مسکن تهران</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:       #0a0a12;
+    --surface:  #12121e;
+    --surface2: #1a1a2a;
+    --border:   #ffffff0f;
+    --gold:     #f5a623;
+    --gold2:    #ffd166;
+    --teal:     #06d6a0;
+    --up:       #30d158;
+    --down:     #ff453a;
+    --blue:     #5ac8fa;
+    --purple:   #bf5af2;
+    --white:    #ffffff;
+    --gray:     #8e8e9a;
+    --gray2:    #3a3a4a;
+    --safe-top: env(safe-area-inset-top, 0px);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    background: var(--bg);
+    color: var(--white);
+    font-family: 'Vazirmatn', sans-serif;
+    min-height: 100dvh;
+    overflow-x: hidden;
+  }
+
+  /* ── Header ── */
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    padding: calc(var(--safe-top) + 16px) 20px 16px;
+    background: linear-gradient(to bottom, var(--bg) 80%, transparent);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .logo-icon {
+    width: 38px; height: 38px;
+    background: linear-gradient(135deg, var(--gold), #ff6b35);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    box-shadow: 0 4px 16px #f5a62340;
+  }
+
+  .logo-text { line-height: 1.1; }
+  .logo-text h1 { font-size: 20px; font-weight: 900; color: var(--gold); letter-spacing: -0.5px; }
+  .logo-text p  { font-size: 11px; color: var(--gray); }
+
+  .header-meta { text-align: left; }
+  .header-meta .update { font-size: 11px; color: var(--gray); }
+  .header-meta .count  { font-size: 11px; color: var(--teal); font-weight: 500; }
+
+  /* ── Tabs ── */
+  .tabs {
+    display: flex;
+    gap: 8px;
+    padding: 0 20px 16px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .tabs::-webkit-scrollbar { display: none; }
+
+  .tab {
+    flex-shrink: 0;
+    padding: 7px 16px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--gray);
+    font-family: 'Vazirmatn', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all .2s;
+  }
+  .tab.active {
+    background: var(--gold);
+    color: #000;
+    border-color: transparent;
+    font-weight: 700;
+  }
+
+  /* ── Region Cards ── */
+  .regions { padding: 0 16px 100px; display: flex; flex-direction: column; gap: 10px; }
+
+  .region-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform .15s, box-shadow .15s;
+    animation: fadeUp .4s ease both;
+  }
+  .region-card:active { transform: scale(0.98); }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .region-card.luxury { border-color: #f5a62330; }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px 10px;
+  }
+
+  .region-name { font-size: 15px; font-weight: 700; }
+  .luxury-badge {
+    font-size: 10px; font-weight: 600;
+    background: #f5a62320; color: var(--gold);
+    padding: 2px 8px; border-radius: 10px;
+    margin-right: 6px;
+  }
+
+  .change-badge {
+    font-size: 12px; font-weight: 700;
+    padding: 3px 10px; border-radius: 10px;
+    display: flex; align-items: center; gap: 3px;
+  }
+  .change-badge.up   { background: #30d15820; color: var(--up); }
+  .change-badge.down { background: #ff453a20; color: var(--down); }
+
+  .card-prices {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--border);
+    border-top: 1px solid var(--border);
+  }
+
+  .price-cell {
+    background: var(--surface);
+    padding: 10px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .price-label { font-size: 10px; color: var(--gray); }
+  .price-value { font-size: 14px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .price-value.gold   { color: var(--gold); }
+  .price-value.teal   { color: var(--teal); }
+  .price-value.blue   { color: var(--blue); }
+  .price-value.purple { color: var(--purple); }
+  .price-sub { font-size: 9px; color: var(--gray); }
+
+  /* ── Detail Sheet ── */
+  .overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: #00000080;
+    z-index: 200;
+    backdrop-filter: blur(4px);
+    animation: fadeIn .2s ease;
+  }
+  .overlay.open { display: block; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  .sheet {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: var(--surface2);
+    border-radius: 24px 24px 0 0;
+    max-height: 90dvh;
+    overflow-y: auto;
+    z-index: 201;
+    transform: translateY(100%);
+    transition: transform .3s cubic-bezier(.32,.72,0,1);
+    padding-bottom: env(safe-area-inset-bottom, 16px);
+  }
+  .sheet.open { transform: translateY(0); }
+
+  .sheet-handle {
+    width: 36px; height: 4px;
+    background: var(--gray2);
+    border-radius: 2px;
+    margin: 12px auto 0;
+  }
+
+  .sheet-header {
+    padding: 16px 20px 12px;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+    position: sticky; top: 0;
+    background: var(--surface2);
+    z-index: 1;
+  }
+
+  .sheet-title { font-size: 18px; font-weight: 800; }
+  .sheet-close {
+    width: 30px; height: 30px;
+    background: var(--gray2); border: none;
+    border-radius: 50%; color: var(--white);
+    font-size: 16px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Vazirmatn', sans-serif;
+  }
+
+  .sheet-body { padding: 16px 20px; }
+
+  .detail-section { margin-bottom: 20px; }
+  .detail-section-title {
+    font-size: 11px; font-weight: 600; color: var(--gray);
+    text-transform: uppercase; letter-spacing: 1px;
+    margin-bottom: 10px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .detail-section-title::after {
+    content: ''; flex: 1; height: 1px; background: var(--border);
+  }
+
+  .detail-grid { display: flex; flex-direction: column; gap: 6px; }
+
+  .detail-row {
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--surface); border-radius: 12px;
+    padding: 11px 14px;
+  }
+
+  .detail-row-label { font-size: 13px; color: var(--gray); display: flex; align-items: center; gap: 6px; }
+  .detail-row-value { font-size: 14px; font-weight: 700; }
+
+  .rent-row {
+    background: var(--surface);
+    border-radius: 12px;
+    padding: 11px 14px;
+    margin-bottom: 6px;
+  }
+  .rent-main { display: flex; align-items: center; justify-content: space-between; }
+  .rent-sub {
+    margin-top: 6px; padding-top: 6px;
+    border-top: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .rent-sub-label { font-size: 11px; color: var(--gray); }
+  .rent-sub-value { font-size: 12px; font-weight: 600; color: var(--teal); }
+
+  /* ── Calculator ── */
+  .calc-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px;
+    margin-top: 10px;
+  }
+  .calc-title { font-size: 12px; color: var(--gray); margin-bottom: 10px; }
+  .calc-row { display: flex; gap: 10px; align-items: center; }
+  .calc-input {
+    flex: 1;
+    background: var(--bg);
+    border: 1px solid var(--gray2);
+    border-radius: 10px;
+    padding: 10px 12px;
+    color: var(--white);
+    font-family: 'Vazirmatn', sans-serif;
+    font-size: 13px;
+    text-align: right;
+    direction: rtl;
+  }
+  .calc-input:focus { outline: none; border-color: var(--gold); }
+  .calc-result {
+    font-size: 13px; font-weight: 700; color: var(--teal);
+    margin-top: 8px; text-align: center;
+  }
+
+  /* ── Footer ── */
+  .footer {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    padding: 10px 20px calc(env(safe-area-inset-bottom, 0px) + 10px);
+    background: linear-gradient(to top, var(--bg) 70%, transparent);
+    text-align: center;
+    font-size: 10px; color: var(--gray);
+  }
+
+  /* ── Loading ── */
+  .loading {
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; min-height: 60vh; gap: 12px; color: var(--gray);
+  }
+  .spinner {
+    width: 32px; height: 32px;
+    border: 3px solid var(--gray2);
+    border-top-color: var(--gold);
+    border-radius: 50%;
+    animation: spin .7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .empty { text-align: center; padding: 60px 20px; color: var(--gray); }
+  .empty .icon { font-size: 40px; margin-bottom: 12px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">
+    <div class="logo-icon">🏙️</div>
+    <div class="logo-text">
+      <h1>Metr</h1>
+      <p>قیمت مسکن تهران</p>
+    </div>
+  </div>
+  <div class="header-meta">
+    <div class="update" id="updateDate">در حال بارگذاری...</div>
+    <div class="count" id="regionCount"></div>
+  </div>
+</div>
+
+<div class="tabs" id="tabs">
+  <button class="tab active" data-filter="all">همه</button>
+  <button class="tab" data-filter="buy">خرید</button>
+  <button class="tab" data-filter="rent">رهن</button>
+  <button class="tab" data-filter="luxury">لوکس</button>
+</div>
+
+<div class="regions" id="regions">
+  <div class="loading">
+    <div class="spinner"></div>
+    <span>در حال بارگذاری قیمت‌ها...</span>
+  </div>
+</div>
+
+<div class="footer">Metr · قیمت‌ها به تومان/متر مربع · منبع: بانک مرکزی</div>
+
+<!-- Detail Sheet -->
+<div class="overlay" id="overlay" onclick="closeSheet()"></div>
+<div class="sheet" id="sheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-header">
+    <span class="sheet-title" id="sheetTitle"></span>
+    <button class="sheet-close" onclick="closeSheet()">✕</button>
+  </div>
+  <div class="sheet-body" id="sheetBody"></div>
+</div>
+
+<script>
+// ── داده و تنظیمات ──────────────────────────────────────
+// آدرس فایل data.json خودت رو اینجا بذار بعد از آپلود روی GitHub:
+const DATA_URL = "./data.json";
+
+const RATE_NORMAL = 30000;
+const RATE_LUXURY = 35000;
+
+let appData = null;
+let currentFilter = "all";
+
+// ── فرمت عدد ────────────────────────────────────────────
+function fmt(n) {
+  if (!n || n === 0) return "—";
+  if (n >= 1_000_000_000) return (n/1e9).toFixed(1) + " میلیارد";
+  if (n >= 1_000_000)     return (n/1e6).toFixed(0) + " میلیون";
+  return n.toLocaleString("fa-IR");
+}
+
+function fmtShort(n) {
+  if (!n || n === 0) return "—";
+  if (n >= 1_000_000_000) return (n/1e9).toFixed(1) + "B";
+  if (n >= 1_000_000)     return (n/1e6).toFixed(0) + "M";
+  return (n/1000).toFixed(0) + "K";
+}
+
+function calcRent(mortgage, isLuxury) {
+  if (!mortgage) return 0;
+  return Math.round((mortgage / 1_000_000) * (isLuxury ? RATE_LUXURY : RATE_NORMAL));
+}
+
+// ── بارگذاری داده ────────────────────────────────────────
+async function loadData() {
+  try {
+    const res = await fetch(DATA_URL + "?t=" + Date.now());
+    appData = await res.json();
+    render();
+  } catch(e) {
+    document.getElementById("regions").innerHTML =
+      `<div class="empty"><div class="icon">⚠️</div><p>خطا در بارگذاری داده‌ها</p></div>`;
+  }
+}
+
+// ── رندر کارت‌ها ─────────────────────────────────────────
+function render() {
+  const data = appData;
+  document.getElementById("updateDate").textContent = "بروزرسانی: " + data.lastUpdate;
+  document.getElementById("regionCount").textContent = data.regions.length + " منطقه";
+
+  let regions = data.regions;
+  if (currentFilter === "luxury") regions = regions.filter(r => r.luxury);
+
+  const container = document.getElementById("regions");
+
+  if (regions.length === 0) {
+    container.innerHTML = `<div class="empty"><div class="icon">🏘️</div><p>منطقه‌ای یافت نشد</p></div>`;
+    return;
+  }
+
+  container.innerHTML = regions.map((r, i) => {
+    const ch = r.monthlyChange ?? 0;
+    const isUp = ch >= 0;
+    const rentM = calcRent(r.rentResidential, r.luxury);
+
+    const showBuy  = currentFilter !== "rent";
+    const showRent = currentFilter !== "buy";
+
+    return `
+    <div class="region-card ${r.luxury ? 'luxury' : ''}" onclick="openSheet(${r.id})"
+         style="animation-delay: ${i * 0.05}s">
+      <div class="card-header">
+        <div style="display:flex;align-items:center">
+          <span class="region-name">${r.name}</span>
+          ${r.luxury ? '<span class="luxury-badge">✨ لوکس</span>' : ''}
+        </div>
+        <span class="change-badge ${isUp ? 'up' : 'down'}">
+          ${isUp ? '▲' : '▼'} ${Math.abs(ch)}%
+        </span>
+      </div>
+      <div class="card-prices">
+        ${showBuy ? `
+        <div class="price-cell">
+          <span class="price-label">🏠 خرید مسکونی</span>
+          <span class="price-value gold">${fmtShort(r.buyResidential)}</span>
+          <span class="price-sub">تومان / متر</span>
+        </div>
+        <div class="price-cell">
+          <span class="price-label">🏪 خرید تجاری</span>
+          <span class="price-value gold">${fmtShort(r.buyCommercial)}</span>
+          <span class="price-sub">تومان / متر</span>
+        </div>
+        ` : ''}
+        ${showRent ? `
+        <div class="price-cell">
+          <span class="price-label">🔑 رهن مسکونی</span>
+          <span class="price-value teal">${fmtShort(r.rentResidential)}</span>
+          <span class="price-sub">تومان / متر</span>
+        </div>
+        <div class="price-cell">
+          <span class="price-label">📅 اجاره/ماه</span>
+          <span class="price-value blue">${fmtShort(rentM)}</span>
+          <span class="price-sub">محاسبه از رهن</span>
+        </div>
+        ` : ''}
+      </div>
+    </div>`;
+  }).join("");
+}
+
+// ── Sheet جزئیات ─────────────────────────────────────────
+function openSheet(id) {
+  const r = appData.regions.find(x => x.id === id);
+  if (!r) return;
+
+  const ch = r.monthlyChange ?? 0;
+  const rate = r.luxury ? RATE_LUXURY : RATE_NORMAL;
+  const rentM_res = calcRent(r.rentResidential, r.luxury);
+  const rentM_off = calcRent(r.rentOffice, r.luxury);
+  const rentM_com = calcRent(r.rentCommercial, r.luxury);
+
+  document.getElementById("sheetTitle").textContent =
+    r.name + (r.luxury ? " ✨" : "") + " — " + (ch >= 0 ? "▲ +" : "▼ ") + ch + "%";
+
+  document.getElementById("sheetBody").innerHTML = `
+    <div class="detail-section">
+      <div class="detail-section-title">💰 قیمت خرید (تومان/متر)</div>
+      <div class="detail-grid">
+        <div class="detail-row">
+          <span class="detail-row-label">🏠 مسکونی</span>
+          <span class="detail-row-value" style="color:var(--gold)">${fmt(r.buyResidential)}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-row-label">🏢 اداری</span>
+          <span class="detail-row-value" style="color:var(--gold)">${fmt(r.buyOffice)}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-row-label">🏪 تجاری</span>
+          <span class="detail-row-value" style="color:var(--gold)">${fmt(r.buyCommercial)}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-row-label">🌍 زمین</span>
+          <span class="detail-row-value" style="color:var(--gold)">${fmt(r.buyLand)}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-row-label">🏚️ کلنگی</span>
+          <span class="detail-row-value" style="color:var(--gold)">${fmt(r.buyOld)}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-section">
+      <div class="detail-section-title">🔑 رهن و اجاره (تومان/متر)</div>
+      <div class="detail-grid">
+        <div class="rent-row">
+          <div class="rent-main">
+            <span class="detail-row-label">🏠 رهن مسکونی</span>
+            <span class="detail-row-value" style="color:var(--teal)">${fmt(r.rentResidential)}</span>
+          </div>
+          ${rentM_res > 0 ? `
+          <div class="rent-sub">
+            <span class="rent-sub-label">← اجاره ماهانه</span>
+            <span class="rent-sub-value">${fmt(rentM_res)} تومان</span>
+          </div>` : ''}
+        </div>
+        <div class="rent-row">
+          <div class="rent-main">
+            <span class="detail-row-label">🏢 رهن اداری</span>
+            <span class="detail-row-value" style="color:var(--teal)">${fmt(r.rentOffice)}</span>
+          </div>
+          ${rentM_off > 0 ? `
+          <div class="rent-sub">
+            <span class="rent-sub-label">← اجاره ماهانه</span>
+            <span class="rent-sub-value">${fmt(rentM_off)} تومان</span>
+          </div>` : ''}
+        </div>
+        <div class="rent-row">
+          <div class="rent-main">
+            <span class="detail-row-label">🏪 رهن تجاری</span>
+            <span class="detail-row-value" style="color:var(--teal)">${fmt(r.rentCommercial)}</span>
+          </div>
+          ${rentM_com > 0 ? `
+          <div class="rent-sub">
+            <span class="rent-sub-label">← اجاره ماهانه</span>
+            <span class="rent-sub-value">${fmt(rentM_com)} تومان</span>
+          </div>` : ''}
+        </div>
+      </div>
+      <div style="font-size:11px;color:var(--gray);margin-top:8px;text-align:center">
+        ⚙️ نرخ تبدیل: هر ۱ میلیون رهن = ${(rate/1000).toFixed(0)} هزار تومان اجاره
+        ${r.luxury ? '(نرخ لوکس)' : '(نرخ عادی)'}
+      </div>
+    </div>
+
+    <div class="detail-section">
+      <div class="detail-section-title">🧮 ماشین حساب رهن</div>
+      <div class="calc-box">
+        <div class="calc-title">مبلغ رهن قابل تبدیل را وارد کن (تومان):</div>
+        <div class="calc-row">
+          <input class="calc-input" type="number" id="calcInput"
+            placeholder="مثلا: 50000000" oninput="calcRentLive(${rate})">
+        </div>
+        <div class="calc-result" id="calcResult"></div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById("overlay").classList.add("open");
+  document.getElementById("sheet").classList.add("open");
+  document.body.style.overflow = "hidden";
+}
+
+function calcRentLive(rate) {
+  const val = parseInt(document.getElementById("calcInput").value);
+  const result = document.getElementById("calcResult");
+  if (!val || isNaN(val)) { result.textContent = ""; return; }
+  const monthly = Math.round((val / 1_000_000) * rate);
+  result.textContent = "اجاره ماهانه: " + fmt(monthly) + " تومان";
+}
+
+function closeSheet() {
+  document.getElementById("overlay").classList.remove("open");
+  document.getElementById("sheet").classList.remove("open");
+  document.body.style.overflow = "";
+}
+
+// ── تب‌ها ─────────────────────────────────────────────────
+document.getElementById("tabs").addEventListener("click", e => {
+  const tab = e.target.closest(".tab");
+  if (!tab) return;
+  document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+  tab.classList.add("active");
+  currentFilter = tab.dataset.filter;
+  if (appData) render();
+});
+
+// Swipe down to close sheet
+let startY = 0;
+document.getElementById("sheet").addEventListener("touchstart", e => { startY = e.touches[0].clientY; });
+document.getElementById("sheet").addEventListener("touchend", e => {
+  if (e.changedTouches[0].clientY - startY > 80) closeSheet();
+});
+
+loadData();
+</script>
+</body>
+</html>
